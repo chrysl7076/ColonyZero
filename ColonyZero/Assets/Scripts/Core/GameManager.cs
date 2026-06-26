@@ -67,6 +67,7 @@ public class GameManager : MonoBehaviour
         if (!_owned.ContainsKey(data)) _owned[data] = 0;
         _owned[data]++;
         buildingPanel?.RefreshAll();
+        CheckWinCondition();
     }
 
     public void AddResources(float m, float e, float o)
@@ -94,10 +95,21 @@ public class GameManager : MonoBehaviour
 
     public bool IsWinConditionMet()
     {
-        if (allBuildings == null || allBuildings.Length == 0) return false;
-        foreach (var b in allBuildings)
-            if (GetOwned(b) < 1) return false;
-        return Colonists >= 5;
+        bool allBuildingsOwned;
+        if (allBuildings != null && allBuildings.Length > 0)
+        {
+            allBuildingsOwned = true;
+            foreach (var b in allBuildings)
+            {
+                if (b == null || GetOwned(b) < 1) { allBuildingsOwned = false; break; }
+            }
+        }
+        else
+        {
+            // fallback if allBuildings not wired up in Inspector
+            allBuildingsOwned = _owned.Count >= 6;
+        }
+        return allBuildingsOwned && Colonists >= 5;
     }
 
     public void Prestige()
